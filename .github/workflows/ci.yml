@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Check out generator
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check out ATSPM fixture source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: opensourcetransportation/atspm
           ref: main
