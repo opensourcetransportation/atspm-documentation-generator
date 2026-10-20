@@ -20,9 +20,8 @@ Generation never copies deployed settings or API keys; the map contains only
 illustrative values. Retain the snapshot and hidden ownership manifest alongside
 the Markdown, and edit source comments/the map instead of generated pages.
 
-During rollout the workflow runs on `documentation-integration` and targets that
-same branch. It follows generator `main` after the shared workflow is merged;
-for branch-only testing, replace its one `@main` with a pushed branch or SHA. The caller has
+The workflow runs on consumer `main` and targets that same branch. It follows
+generator `main`; replace `@main` with a full commit SHA to pin it. The caller has
 `create-pr: true`; inspect the `documentation-preview` artifact and review PR.
 Repository Actions settings must allow PR
 creation. Pushes work on the development branch; manual dispatch requires the

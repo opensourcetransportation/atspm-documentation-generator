@@ -41,9 +41,8 @@ external settings are absent from a deployment.
 
 The **Update generated documentation** workflow scans source, checks section
 coverage and structured log IDs, validates the site, and proposes a review PR to
-`documentation-integration`. It does not run the application. The caller follows
-generator `main` after the shared workflow is merged; for branch-only testing,
-replace its one `@main` with a pushed branch or SHA. Inspect its preview artifact
+`main`. It does not run the application. The caller follows generator `main`;
+replace `@main` with a full commit SHA to pin it. Inspect its preview artifact
 and PR. Actions settings must permit PR
 creation. Nothing merges or publishes documentation automatically.
 

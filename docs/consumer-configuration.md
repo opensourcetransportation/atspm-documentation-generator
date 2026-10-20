@@ -1,6 +1,6 @@
 # Part 2: repository-owned configuration
 
-Implemented on `feature/generic-documentation`, retaining schema version 2 and the
+Implemented on `main`, retaining schema version 2 and the
 existing CLI `--map` option. This part does not alter consumer repositories or
 introduce new publishing/PR automation.
 

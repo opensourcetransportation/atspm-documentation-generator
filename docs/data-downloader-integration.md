@@ -1,11 +1,8 @@
 # Data Downloader integration (Part 7)
 
-The consumer integration is prepared locally on `documentation-integration` in
-`_source/atspm-data-downloader`. The generator stays on
-`feature/generic-documentation`. Nothing has been committed, pushed, merged or
-published. The nested consumer checkout is ignored by this generator repository;
-open it separately to review its Git changes. The reusable integration inputs are
-retained here under `integration/data-downloader`.
+The generator is on `main`. The reusable Data Downloader integration inputs are
+under `integration/data-downloader`. The caller example watches consumer `main`;
+copying it to the consumer repository is a separate step.
 
 ## Source and coverage
 
@@ -54,16 +51,10 @@ configuration, packages or generator scripts are copied into the consumer.
 
 ## Activation dependency
 
-The shared generator changes are still uncommitted and unpublished. The caller
-follows generator `main` once the shared workflow is merged there. For an
-earlier branch-only run, replace its one `@main` with a pushed generator branch
-or full commit SHA containing the reusable workflow.
-
-After review, commit/push the generator development branch if testing before a
-main merge. This requires changing only the caller's `uses` ref.
-Commit/push the consumer's integration branch, then review the artifact and
-documentation PR against
-`documentation-integration`. Actions PR-creation permissions must be enabled.
+The caller follows generator `main` and targets consumer `main`. Replace
+`@main` with a full generator commit SHA only if you need to pin a version.
+After copying and committing the consumer files, review the artifact and
+documentation PR. Actions PR-creation permissions must be enabled.
 Manual dispatch availability and PR checks follow the
 [shared workflow instructions](shared-pr-automation.md).
 

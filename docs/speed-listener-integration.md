@@ -1,13 +1,10 @@
 # Speed Listener integration (Part 9)
 
-Prepared locally on `documentation-integration` in
-`_source/atspm-speed-listener`, cloned from
+The source was checked against
 `opensourcetransportation/atspm-speed-listener` at
 `7f94a674769af2ef715342c53ad18447a01ab3d6` (2026-09-01).
-The generator remains on `feature/generic-documentation`. Nothing is committed,
-pushed, merged or published. The nested consumer checkout is ignored by the
-generator repository; review its Git changes separately. Reusable inputs live in
-`integration/speed-listener`.
+The generator is on `main`. Reusable inputs live in `integration/speed-listener`;
+copying them to the consumer repository is a separate step.
 
 ## Verified source contract
 
@@ -57,14 +54,12 @@ README.md (operating notes and links)
 Two explicit pages keep listener and emitter settings separate. A newly annotated
 section must be assigned to a page, so the coverage check fails instead of
 guessing a runtime role. New properties in existing sections need no map change.
-The workflow runs on the `documentation-integration` branch and targets that same
+The workflow runs on the consumer's `main` branch and targets that same
 branch. It performs staged checks and uploads a preview before review PR automation.
 
-The caller follows generator `main` after the shared workflow is merged. For
-branch-only testing, replace its one `@main` with a pushed generator branch or
-full commit SHA. Inspect the hosted preview and PR, and enable Actions
-PR-creation permissions. A development branch
-push can test the caller without merging to main. The workflow does not merge or
+The caller follows generator `main`; replace `@main` with a full commit SHA
+to pin a version. Inspect the hosted preview and PR, and enable Actions
+PR-creation permissions. The workflow does not merge or
 publish documentation.
 
 ## Validation

@@ -1,6 +1,6 @@
 # Part 3: generic pages and branding
 
-Implemented on `feature/generic-documentation`. Consumer repositories and production
+Implemented on `main`. Consumer repositories and production
 publishing remain untouched. Schema version 2 gains optional site settings and log
 folder lists; existing ATSPM configurations still work.
 

@@ -28,9 +28,7 @@ branch, run `check` against that branch and adjust registrations or page
 assignments based on its actual source. The current public `main` has changed
 since the pinned commit, so the frozen map is not a claim of current coverage.
 
-The caller template targets a development branch named `Code-Documentations`
-for both source and documentation PRs. Change that name if the public ATSPM
-review branch differs. It calls the generator's `main` after the shared workflow
-is merged there; before then, use a pushed generator feature branch or commit.
+The caller template targets `main` for both source and documentation PRs.
+It calls the generator's `main`, where the shared workflow is available.
 The workflow stages output, uploads a preview, and proposes a review PR. A
 person reviews and merges it; Pages publication is configured separately.

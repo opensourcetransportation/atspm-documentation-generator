@@ -1,6 +1,6 @@
 # Part 4: discovery and setup
 
-Implemented on `feature/generic-documentation`. The current action and original
+Implemented on `main`. The current action and original
 generation syntax remain compatible. No consumer repositories, branches, PRs or
 publishing settings were changed.
 

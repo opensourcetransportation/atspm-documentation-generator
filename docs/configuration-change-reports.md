@@ -1,6 +1,6 @@
 # Part 5: configuration change reports
 
-Implemented on `feature/generic-documentation`. The report is used by the
+Implemented on `main`. The report is used by the
 [shared PR automation](shared-pr-automation.md). Production publishing remains
 separate.
 

@@ -47,15 +47,14 @@ generation workflow. It calls shared automation from
 `generate-docs.yml` workflow, which attempted to replace `Code-Documentations`
 with an orphan output branch, has been removed in this integration change.
 
-Both source and PR target are `Code-Documentations`. Pushes to that branch rebuild
+Both source and PR target are `main`. Pushes to that branch rebuild
 the documentation; documentation-only changes are ignored. The shared workflow
 validates in staging and uploads a preview before proposing any changes. After
 activation, it maintains one reviewable documentation PR and never merges it or deploys
 Pages/wiki content.
 
-**Activation is pending the shared workflow on generator `main`.** For an earlier
-branch-only run, replace its one `@main` reference with a pushed generator
-branch or full commit SHA. The caller has `create-pr: true`; inspect its
+The shared workflow is on generator `main`. To freeze a specific generator
+version, replace `@main` with a full commit SHA. The caller has `create-pr: true`; inspect its
 artifact and PR before merging. Enable Actions PR creation in repository
 settings. The manual-dispatch button requires the workflow on the default branch;
 use branch pushes for testing without merging to main.

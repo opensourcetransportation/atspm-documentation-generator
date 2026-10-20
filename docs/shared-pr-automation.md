@@ -6,18 +6,16 @@ Consumers keep their JSON map, generated files and a small caller workflow.
 Nothing merges a PR or deploys a site. These changes are local until reviewed and
 committed; consumer integration is handled in Parts 7–10.
 
-## Install on a development branch
+## Install on the consumer's main branch
 
 1. Create `documentation.json` using `init`, or migrate the
    existing map. Verify it with `check` (see [setup commands](discovery-and-setup.md)).
 2. Copy `integration/update-documentation.yml` to the consumer's
    `.github/workflows/update-documentation.yml`. ATSPM has its own example using
-   `Code-Documentations`. Retire conflicting older generators during integration.
-3. The example calls `@main`. Once this shared workflow is reviewed and merged
-   into the generator's `main`, the consumer follows its updates automatically.
+   `main`. Retire conflicting older generators during integration.
+3. The example calls generator `@main`, so the consumer follows its updates.
    To freeze a consumer on one version, replace only `@main` in its `uses` line
-   with a full generator commit SHA. During branch-only development, use a
-   pushed generator branch or SHA because `main` does not contain this workflow yet.
+   with a full generator commit SHA.
    The reusable job checks out its own repository at the exact workflow SHA.
 4. Set the push branch, `source-branch` and `target-branch` explicitly. The
    caller has `create-pr: true`. Preserve the generated-output ignore filter,
@@ -29,8 +27,7 @@ committed; consumer integration is handled in Parts 7–10.
    consumer's `.github/CODEOWNERS` for the map and generated docs.
 
 GitHub only exposes manual dispatch when the workflow exists on the repository's
-default branch. During branch-only development, use a push to the configured
-development branch. Do not merge solely to make the Run workflow button appear.
+default branch. The example caller watches `main`.
 
 The caller grants `contents: write` and `pull-requests: write`. The repository's
 Actions settings must allow GitHub Actions to create PRs. Organization policy can
