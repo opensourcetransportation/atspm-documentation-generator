@@ -26,9 +26,11 @@ public sealed partial class MarkdownDocumentationGenerator
         var pages = map.Containers
             .Select(container =>
             {
-                var sections = container.Sections
-                    .Select(sectionName => ResolveMappedSection(container.Name, sectionName, availableSections))
+                var sections = ConfigurationDiscovery.GetSections(container, availableSections)
+                    .Select(sectionName => ConfigurationDiscovery.ResolveSection(sectionName, availableSections))
                     .ToArray();
+                if (container.AutoDiscover && sections.Length == 0)
+                    throw new InvalidDataException($"Automatic page '{container.Name}' found no configuration sections. Check sourcePaths and configurationTypes.");
                 documentedSections.UnionWith(sections.Select(section => section.SectionName));
                 return new
                 {
@@ -38,12 +40,18 @@ public sealed partial class MarkdownDocumentationGenerator
             })
             .Append(new
             {
+                FileName = OutputLayout.TemplatePageFileName,
+                Contents = BuildTemplatePage(map, options)
+            })
+            .Append(new
+            {
                 FileName = "index.md",
                 Contents = BuildIndexPage(map, options)
             })
             .ToArray();
 
         Directory.CreateDirectory(options.OutputRoot);
+        OutputLayout.CreateSupportDirectory(options.OutputRoot);
         foreach (var page in pages)
         {
             WriteFile(
@@ -76,7 +84,12 @@ public sealed partial class MarkdownDocumentationGenerator
         builder.AppendLine();
         builder.AppendLine("## References");
         builder.AppendLine();
-        builder.AppendLine("- [Log messages](log-messages.md)");
+        if (map.LogMessages.Enabled)
+        {
+            builder.AppendLine("- [Log messages](support/log-messages.md)");
+        }
+        builder.AppendLine("- [Configuration changes](support/configuration-changes.md)");
+        builder.AppendLine("- [Configuration templates](support/configuration-templates.md)");
 
         return NormalizeLineEndings(builder.ToString());
     }
@@ -111,7 +124,33 @@ public sealed partial class MarkdownDocumentationGenerator
         }
 
         AppendExampleConfiguration(builder, sections, examples);
+        builder.AppendLine();
+        builder.AppendLine("## Download templates");
+        builder.AppendLine();
+        builder.AppendLine($"- [JSON example](support/{container.Slug}.example.json)");
+        builder.AppendLine($"- [Environment example](support/{container.Slug}.env.example)");
+        builder.AppendLine();
+        builder.AppendLine("These are starting points from the source revision linked above. Replace placeholders before use.");
 
+        return NormalizeLineEndings(builder.ToString());
+    }
+
+    private static string BuildTemplatePage(DocumentationMap map, CliOptions options)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("# Configuration templates");
+        builder.AppendLine();
+        builder.AppendLine("Downloadable examples for the documented configuration sections. They are starting points, not deployment settings.");
+        builder.AppendLine();
+        AppendGenerationTimestamp(builder, options);
+        builder.AppendLine($"Source revision: [{EscapeText(options.RepositoryRef)}]({BuildRepositoryUrl(options.RepositoryUrl, "tree", options.RepositoryRef, string.Empty)}).");
+        builder.AppendLine();
+        builder.AppendLine("String values and credentials use safe placeholders. Review the configuration reference and replace them before use. The generator never writes deployment configuration.");
+        builder.AppendLine();
+        foreach (var container in map.Containers)
+        {
+            builder.AppendLine($"- **{EscapeText(container.Name)}:** [JSON]({container.Slug}.example.json) · [environment]({container.Slug}.env.example)");
+        }
         return NormalizeLineEndings(builder.ToString());
     }
 
@@ -124,20 +163,7 @@ public sealed partial class MarkdownDocumentationGenerator
 
         foreach (var section in sections)
         {
-            var path = section.SectionName.Split(':', StringSplitOptions.RemoveEmptyEntries);
-            var current = configuration;
-
-            foreach (var segment in path)
-            {
-                if (current[segment] is not JsonObject child)
-                {
-                    child = new JsonObject();
-                    current[segment] = child;
-                }
-
-                current = child;
-            }
-
+            var current = ConfigurationExampleTree.Section(configuration, section.SectionName);
             foreach (var property in section.Properties)
             {
                 current[property.Name] = CreateExampleValue(property, examples);
@@ -154,7 +180,7 @@ public sealed partial class MarkdownDocumentationGenerator
         builder.AppendLine("```");
     }
 
-    private static JsonNode? CreateExampleValue(ConfigurationProperty property, ExampleValueMap examples)
+    internal static JsonNode? CreateExampleValue(ConfigurationProperty property, ExampleValueMap examples)
     {
         var name = property.Name;
         var typeName = property.TypeName.TrimEnd('?');
@@ -206,7 +232,8 @@ public sealed partial class MarkdownDocumentationGenerator
 
         if (typeName is "byte" or "short" or "int" or "long")
         {
-            var numeric = defaultExpression.TrimEnd('L', 'l');
+            // C# digit separators are legal in source literals but not in JSON numbers.
+            var numeric = defaultExpression.TrimEnd('L', 'l').Replace("_", "", StringComparison.Ordinal);
             return JsonValue.Create(
                 long.TryParse(numeric, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)
                     ? value
@@ -215,7 +242,8 @@ public sealed partial class MarkdownDocumentationGenerator
 
         if (typeName is "float" or "double" or "decimal")
         {
-            var numeric = defaultExpression.TrimEnd('F', 'f', 'D', 'd', 'M', 'm');
+            var numeric = defaultExpression.TrimEnd('F', 'f', 'D', 'd', 'M', 'm')
+                .Replace("_", "", StringComparison.Ordinal);
             return JsonValue.Create(
                 decimal.TryParse(numeric, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
                     ? value
@@ -353,27 +381,6 @@ public sealed partial class MarkdownDocumentationGenerator
         }
 
         builder.AppendLine();
-    }
-
-    private static ConfigurationSection ResolveMappedSection(
-        string containerName,
-        string mappedSectionName,
-        IReadOnlyDictionary<string, ConfigurationSection> availableSections)
-    {
-        if (availableSections.TryGetValue(mappedSectionName, out var section))
-        {
-            return section;
-        }
-
-        var baseSectionName = MappedSectionName.GetBaseName(mappedSectionName);
-        if (!string.Equals(baseSectionName, mappedSectionName, StringComparison.Ordinal)
-            && availableSections.TryGetValue(baseSectionName, out section))
-        {
-            return section with { SectionName = mappedSectionName };
-        }
-
-        throw new InvalidDataException(
-            $"Container '{containerName}' references unknown configuration section '{mappedSectionName}'.");
     }
 
     private static string EscapeTableText(string value) => EscapeText(value);
