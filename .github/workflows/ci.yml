@@ -22,7 +22,7 @@ jobs:
       - name: Check out ATSPM fixture source
         uses: actions/checkout@v6
         with:
-          repository: avenueconsultants/udot-atspm-development
+          repository: opensourcetransportation/atspm
           ref: 82bc9983533671a00d92532289c438e54a5f60e5
           path: _source
 
@@ -54,7 +54,7 @@ jobs:
           source-root: _source
           config-file: ${{ github.workspace }}/config/container-config-map.json
           output-root: _generated
-          repository-url: https://github.com/avenueconsultants/udot-atspm-development
+          repository-url: https://github.com/opensourcetransportation/atspm
           repository-ref: ${{ steps.source.outputs.sha }}
 
       - name: Verify expected output
@@ -89,7 +89,7 @@ jobs:
           source-root: _source
           config-file: documentation.json
           output-root: _generated-consumer
-          repository-url: https://github.com/avenueconsultants/udot-atspm-development
+          repository-url: https://github.com/opensourcetransportation/atspm
           repository-ref: ${{ steps.source.outputs.sha }}
 
       - name: Compare legacy and consumer-owned outputs
@@ -115,7 +115,7 @@ jobs:
       - name: Check out pinned ATSPM development source
         uses: actions/checkout@v6
         with:
-          repository: avenueconsultants/udot-atspm-development
+          repository: opensourcetransportation/atspm
           ref: 82bc9983533671a00d92532289c438e54a5f60e5
           path: _source/atspm-baseline
           persist-credentials: false

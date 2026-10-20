@@ -60,9 +60,7 @@ artifact and PR before merging. Enable Actions PR creation in repository
 settings. The manual-dispatch button requires the workflow on the default branch;
 use branch pushes for testing without merging to main.
 
-This integration is developed in `avenueconsultants/udot-atspm-development`.
-Its eventual home is `opensourcetransportation/atspm`. The workflow derives source
-links from the calling repository and exact source commit, so it does not falsely
-link development code to upstream. When moving upstream, retain the integration
-branch and rerun there to refresh provenance before reviewing the output. No
-production branch switch, merge or publication is automatic.
+This integration targets `opensourcetransportation/atspm`. The workflow derives
+source links from that repository and the exact commit that triggered it. Adopt
+the map and caller on a review branch there, then generate and review its own
+output. No branch switch, merge or publication is automatic.

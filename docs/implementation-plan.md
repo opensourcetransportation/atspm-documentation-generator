@@ -4,8 +4,8 @@ All development stays on branches. No automatic merges or production publishing.
 Finish and review the shared generator before changing consumer repositories again.
 Parts 7–9 created isolated local consumer review material, but further consumer
 integration and hosted activation wait until shared tooling is complete.
-ATSPM development uses `Code-Documentations` in the Avenue development repository;
-its eventual home is `opensourcetransportation/atspm`. Other consumers use dedicated
+ATSPM integration targets a review branch in `opensourcetransportation/atspm`.
+Other consumers use dedicated
 integration branches. Documentation PRs must target the appropriate development
 branch until rollout is explicitly approved.
 
@@ -31,9 +31,10 @@ branch until rollout is explicitly approved.
 7. **Data Downloader (integrated locally; hosted activation pending generator ref):**
    consumer map, development-branch workflow, saved docs and pinned integration
    checks. See [Part 7 details](data-downloader-integration.md).
-8. **ATSPM (integrated locally; hosted activation pending generator ref):** preserved
-   six service pages, migrated the map, and removed the conflicting legacy workflow
-   in the proposed `Code-Documentations` changes. See [Part 8 details](atspm-integration.md).
+8. **ATSPM (public consumer adoption pending):** the six-page map and caller
+   are prepared here and validated against a pinned public ATSPM commit. Apply
+   them on a review branch in `opensourcetransportation/atspm`, update coverage
+   for that branch, and review generated output. See [Part 8 details](atspm-integration.md).
 9. **Speed Listener (integrated locally; hosted activation pending generator ref):**
    verified actual section bindings, listener/emitter coverage, numeric defaults
    and dependency provenance. See [Part 9 details](speed-listener-integration.md).
