@@ -21,7 +21,7 @@ if [[ "$candidate" == *$'\n'* || "$candidate" == *$'\r'* ]]; then
 fi
 if [[ ! -f "$candidate" ]]; then
   echo "Configuration file does not exist or is not a file: $candidate" >&2
-  echo "Set config-file relative to source-root, for example GenerateDocuments/documentation.json." >&2
+  echo "Set config-file relative to source-root, for example documentation.json." >&2
   exit 2
 fi
 

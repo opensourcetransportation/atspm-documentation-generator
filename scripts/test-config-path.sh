@@ -11,17 +11,17 @@ cleanup() {
   fi
 }
 trap cleanup EXIT
-mkdir -p "$fixture/action/config" "$fixture/source checkout/GenerateDocuments"
+mkdir -p "$fixture/action/config" "$fixture/source checkout"
 printf '{}' > "$fixture/action/config/container-config-map.json"
-printf '{}' > "$fixture/source checkout/GenerateDocuments/documentation.json"
+printf '{}' > "$fixture/source checkout/documentation.json"
 
 resolve() {
   bash "$script_root/resolve-config-path.sh" "$fixture/source checkout" "$fixture/action" "$1"
 }
-expected="$(realpath "$fixture/source checkout/GenerateDocuments/documentation.json")"
+expected="$(realpath "$fixture/source checkout/documentation.json")"
 [[ "$(resolve '')" == "$(realpath "$fixture/action/config/container-config-map.json")" ]]
-[[ "$(resolve 'GenerateDocuments/documentation.json')" == "$expected" ]]
-[[ "$(resolve "$fixture/source checkout/GenerateDocuments/documentation.json")" == "$expected" ]]
+[[ "$(resolve 'documentation.json')" == "$expected" ]]
+[[ "$(resolve "$fixture/source checkout/documentation.json")" == "$expected" ]]
 for invalid in 'missing.json' 'GenerateDocuments' $'bad\npath'; do
   if resolve "$invalid" > "$fixture/output" 2> "$fixture/error"; then
     echo "Unexpected success for invalid configuration path" >&2
@@ -30,4 +30,4 @@ for invalid in 'missing.json' 'GenerateDocuments' $'bad\npath'; do
   test -s "$fixture/error"
   test ! -s "$fixture/output"
 done
-echo "Configuration path checks passed (default, relative, absolute, spaces, missing, directory, newline)."
+echo "Configuration path checks passed (explicit legacy fallback, root-relative, absolute, spaces, missing, directory, newline)."

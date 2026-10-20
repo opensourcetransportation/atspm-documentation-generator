@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   documentation:
-    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@REPLACE_WITH_COMMIT_SHA
+    # Change @main to @<full-commit-sha> to pin a generator version.
+    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@main
     with:
-      generator-ref: REPLACE_WITH_COMMIT_SHA
       source-branch: Code-Documentations
       target-branch: Code-Documentations
-      create-pr: false
+      create-pr: true
       # Preserve service-specific assignments; do not guess where new shared
       # ATSPM configuration sections belong.

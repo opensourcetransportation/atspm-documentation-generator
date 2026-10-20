@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -55,14 +56,21 @@ def files(root: Path) -> dict[str, bytes]:
     if not root.is_dir():
         raise ValueError(f"Expected a generated directory: {root}")
     result = {}
-    for path in root.iterdir():
-        if path.is_symlink() or not path.is_file():
+    for path in root.rglob("*"):
+        if path.is_symlink():
             raise ValueError(f"Generated output must contain only regular files: {path}")
-        result[path.name] = path.read_bytes()
+        if path.is_dir():
+            if path.relative_to(root).as_posix() != "support":
+                raise ValueError(f"Unexpected generated directory: {path}")
+            continue
+        if not path.is_file():
+            raise ValueError(f"Generated output must contain only regular files: {path}")
+        result[path.relative_to(root).as_posix()] = path.read_bytes()
     return result
 
 
 def semantic_content(name: str, content: bytes, repository_url: str) -> bytes:
+    name = PurePosixPath(name).name
     if not name.endswith(".md") or name == "configuration-changes.md":
         return content
     text = content.decode("utf-8").replace("\r\n", "\n")
@@ -94,6 +102,40 @@ def meaningful_change(before: dict[str, bytes], after: dict[str, bytes], url: st
 def branch_name(target_branch: str, output: str) -> str:
     identity = f"{target_branch}\n{output}".encode()
     return "automation/documentation-" + hashlib.sha256(identity).hexdigest()[:16]
+
+
+def configuration_review(output: Path, revision: str, output_name: str,
+                         previous_snapshot: bytes | None) -> str:
+    """Put the actionable source-contract changes where PR reviewers will see them."""
+    snapshot_bytes = (output / "support/configuration-snapshot.json").read_bytes()
+    snapshot = json.loads(snapshot_bytes)
+    report = snapshot["report"]
+    location = f"{output_name}/support/configuration-changes.md"
+    lines = ["## Configuration review", "",
+             f"Detailed report: `{location}`. Review deployment values; source analysis cannot confirm what is deployed.", ""]
+    if previous_snapshot == snapshot_bytes or snapshot["sourceRevision"] != revision:
+        lines.append("No new modeled configuration changes in this run. The saved report still shows the last comparison.")
+    elif report["baselineRevision"] is None:
+        lines.append("Initial baseline: there is no earlier snapshot to compare. Review the full configuration reference.")
+    elif not report["changes"]:
+        lines.append("No modeled configuration changes in this run.")
+    else:
+        lines.append(f"{len(report['changes'])} configuration change(s) need review:")
+        lines.append("")
+        def one_line(value: str) -> str:
+            return re.sub(r"\s+", " ", value).replace("`", "'")
+
+        for change in report["changes"]:
+            setting = change["section"] + (f".{change['property']}" if change["property"] else "")
+            variables = ", ".join(change["environmentVariables"]) or "none listed"
+            services = ", ".join(change["affectedServices"]) or "unmapped"
+            before_value = change["before"] if change["before"] is not None else "(none)"
+            after_value = change["after"] if change["after"] is not None else "(none)"
+            # Keep source-authored text on one PR-body line.
+            lines.append(f"- **{one_line(change['kind'])}**: `{one_line(setting)}`; "
+                         f"`{one_line(before_value)}` → `{one_line(after_value)}`; "
+                         f"environment: `{one_line(variables)}`; services: {one_line(services)}.")
+    return "\n".join(lines) + "\n"
 
 
 def prepare(args) -> bool:
@@ -128,6 +170,7 @@ def prepare(args) -> bool:
         generated = staging / "generated"
         generated.mkdir()
         for name, content in before.items():
+            (generated / name).parent.mkdir(parents=True, exist_ok=True)
             (generated / name).write_bytes(content)
         # The generator validates ownership and the previous snapshot before
         # replacing anything. Its workspace here is disposable staging only.
@@ -143,11 +186,14 @@ def prepare(args) -> bool:
         changed = meaningful_change(before, after, args.repository_url) or map_changed
         shutil.copytree(generated, args.artifacts / "generated")
         shutil.copyfile(config, args.artifacts / "documentation.json")
+        review = configuration_review(generated, sha, args.output,
+                                      before.get("support/configuration-snapshot.json", before.get("configuration-snapshot.json")))
         report = (
             f"Generated from {args.repository_url}/commit/{sha}.\n\n"
             f"PR target: `{args.target_branch}` at `{target_sha}`.\n\n"
-            "Configuration checks and strict MkDocs validation passed. "
-            "Review the generated configuration change report and the workflow's preview artifact.\n\n"
+        ) + review + (
+            "\nConfiguration checks and strict MkDocs validation passed. "
+            "The workflow also provides a downloadable site preview.\n\n"
             f"Repository map updated: {'yes' if map_changed else 'no'}.\n\n"
             "This PR only proposes documentation and optional additive map updates. "
             "It does not change deployed configuration or publish a site.\n"
@@ -159,6 +205,7 @@ def prepare(args) -> bool:
             for name in before.keys() - after.keys():
                 (output / name).unlink()
             for name, content in after.items():
+                (output / name).parent.mkdir(parents=True, exist_ok=True)
                 (output / name).write_bytes(content)
             if map_changed:
                 target_config.write_bytes(new_map)
@@ -179,7 +226,7 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--target", type=Path, required=True)
     parser.add_argument("--target-branch", required=True)
-    parser.add_argument("--config", default="GenerateDocuments/documentation.json")
+    parser.add_argument("--config", default="documentation.json")
     parser.add_argument("--output", default="docs/autogenerated")
     parser.add_argument("--sync-container", default="")
     parser.add_argument("--repository-url", required=True)

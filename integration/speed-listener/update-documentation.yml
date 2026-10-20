@@ -13,11 +13,10 @@ permissions:
 
 jobs:
   documentation:
-    # Replace both pins with the same reviewed, pushed generator commit.
-    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@REPLACE_WITH_COMMIT_SHA
+    # Test this pushed branch now; replace with a reviewed full commit SHA to pin the version.
+    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@main
     with:
-      generator-ref: REPLACE_WITH_COMMIT_SHA
       source-branch: documentation-integration
       target-branch: documentation-integration
-      create-pr: false
+      create-pr: true
       # Explicit pages make a new section fail coverage until its role is known.

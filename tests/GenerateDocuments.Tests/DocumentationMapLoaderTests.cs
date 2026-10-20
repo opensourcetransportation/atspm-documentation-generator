@@ -44,7 +44,7 @@ public sealed class DocumentationMapLoaderTests
     public void LoadConsumerFileAllowsLegacyOptionalDefaults()
     {
         using var directory = new TemporaryDirectory();
-        var path = directory.WriteFile("GenerateDocuments/documentation.json", ConsumerMap);
+        var path = directory.WriteFile("documentation.json", ConsumerMap);
         var map = DocumentationMapLoader.Load(path);
         Assert.Equal("Example utility", map.ProductName);
         Assert.Empty(map.Examples.PropertyValues);
@@ -77,7 +77,7 @@ public sealed class DocumentationMapLoaderTests
             parent[finalIndex] = null;
         else
             parent[parts[^1]] = null;
-        var path = directory.WriteFile("GenerateDocuments/documentation.json", json.ToJsonString());
+        var path = directory.WriteFile("documentation.json", json.ToJsonString());
         var exception = Assert.Throws<InvalidDataException>(() => DocumentationMapLoader.Load(path));
         Assert.Contains(path, exception.Message);
     }

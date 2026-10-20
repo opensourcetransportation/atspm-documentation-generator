@@ -6,9 +6,10 @@ introduce new publishing/PR automation.
 
 ## Contract
 
-The action accepts `config-file: GenerateDocuments/documentation.json`, resolved
-relative to `source-root`. Absolute paths also work. Only an omitted/empty input
-uses the bundled ATSPM map. Missing explicit files fail before the build; paths with
+The action accepts `config-file: documentation.json`, resolved
+relative to `source-root`. Absolute paths also work. The action now defaults to
+the root file; an explicitly empty input uses the bundled ATSPM map. Missing
+map files fail before the build; paths with
 line breaks are rejected because they cannot be represented as single-line step
 outputs. Spaces in file paths are supported.
 

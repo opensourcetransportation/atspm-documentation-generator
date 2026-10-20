@@ -13,13 +13,10 @@ permissions:
 
 jobs:
   documentation:
-    # Replace BOTH pins after the shared generator changes have been reviewed
-    # and pushed to a development branch. No main-branch merge is required.
-    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@REPLACE_WITH_COMMIT_SHA
+    # Test this pushed branch now; replace with a reviewed full commit SHA to pin the version.
+    uses: opensourcetransportation/atspm-documentation-generator/.github/workflows/documentation-pr.yml@main
     with:
-      generator-ref: REPLACE_WITH_COMMIT_SHA
       source-branch: documentation-integration
       target-branch: documentation-integration
-      create-pr: false
+      create-pr: true
       # autoDiscover includes new sections without rewriting the map.
-      # After reviewing the first hosted preview, set create-pr: true.

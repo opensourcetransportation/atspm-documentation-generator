@@ -22,7 +22,7 @@ public static class SetupCommands
           check --source-root <path> [--map <path>]
           sync --source-root <path> [--map <path>] [--container <slug>] [--write]
 
-        --map defaults to GenerateDocuments/documentation.json, relative to source-root.
+        --map defaults to documentation.json at source-root.
         init scans source-root (or repeated --source-path folders) and never overwrites a file.
         check validates paths, registrations, exclusions, mappings, logs and coverage without writing.
         sync previews additive mapping changes; --container explicitly selects a page for unmapped sections.
@@ -69,7 +69,7 @@ public static class SetupCommands
             var root = PathSafety.Canonicalize(source);
             if (!Directory.Exists(root)) throw new DirectoryNotFoundException($"Source root does not exist: {root}");
             var mapPath = Path.GetFullPath(Path.Combine(root,
-                values.GetValueOrDefault("--map", "GenerateDocuments/documentation.json")));
+                values.GetValueOrDefault("--map", "documentation.json")));
             if (command == "init")
                 return Init(root, mapPath, paths.Count == 0 ? ["."] : paths,
                     values.GetValueOrDefault("--product-name", new DirectoryInfo(root).Name));

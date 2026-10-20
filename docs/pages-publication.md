@@ -1,13 +1,14 @@
 # Pages preview and publication
 
 Part 12 adds the shared workflow `.github/workflows/documentation-pages.yml` and
-an optional [consumer caller](../integration/preview-documentation-pages.yml).
-The caller is a small second workflow in the source repository. It watches the
-reviewed documentation branch and can also be run manually. Its checked-in
-`publish: false` setting produces a site preview artifact only.
+an optional [consumer caller](../integration/publish-documentation-pages.yml).
+The caller is a small second workflow in the source repository. It watches
+commits to generated documentation on the reviewed branch and can also be run
+manually. Its `publish: true` example publishes after reviewed files are
+committed. The shared workflow itself still defaults to `publish: false`.
 
 The Pages workflow checks out the **exact consumer commit that triggered it**
-and the pinned generator commit. It does not regenerate documentation. Before
+and the exact commit of the generator workflow GitHub selected. It does not regenerate documentation. Before
 building, it verifies that the map and every generated file are committed and
 unchanged, the ownership manifest agrees with the map, and the snapshot names
 the same source repository and a full source commit. It then builds that
@@ -16,18 +17,20 @@ contains the rendered site and a review note identifying the documentation,
 documented source and generator commits. It can be inspected without enabling
 GitHub Pages.
 
-To adopt the preview, copy the caller to
-`.github/workflows/preview-documentation-pages.yml`, replace both generator SHA
-placeholders with the same reviewed full commit, and set `docs-branch` to the
-branch that will receive the generated-documentation PR. Keep `publish: false`.
-After the PR is reviewed and its generated files are committed to that branch,
-the caller builds a preview from those committed files. A draft PR or the
-earlier generation preview never becomes a published site by itself.
+To adopt publishing, copy the caller to
+`.github/workflows/publish-documentation-pages.yml` and set `docs-branch` to the
+branch that will receive the generated-documentation PR. After the PR is
+reviewed and merged into that branch, the caller builds and publishes from
+those committed files. The earlier generation preview cannot publish a site.
+The example follows generator `main`; replace its one `@main` reference with a
+full commit SHA to freeze the generator version. The workflow checks out its
+supporting scripts at the same resolved commit automatically.
 
-Production activation is a separate reviewed change: configure the repository's
-Pages source as **GitHub Actions**, protect the `github-pages` environment for
-the allowed publishing branch, grant the caller `pages: write` and
-`id-token: write` as well as `contents: read`, and change `publish` to `true`.
+Before adopting the publishing caller, configure the repository's Pages source
+as **GitHub Actions** and protect the `github-pages` environment for the
+allowed publishing branch. The example caller already grants `pages: write`,
+`id-token: write` and `contents: read`, and sets `publish: true`. Change it to
+`false` if the consumer should produce preview artifacts only.
 The shared workflow packages a Pages artifact and runs `actions/deploy-pages`
 only with that explicit input. A protected environment can require approval
 before the deployment job starts. No repository has been configured or
@@ -36,6 +39,7 @@ guidance](https://docs.github.com/en/pages/getting-started-with-github-pages/con
 and [deployment environment
 rules](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments).
 
-The site is rebuilt for each preview from committed Markdown, JSON templates
-and the repository-owned map. A source push can still create a draft docs PR
-through the separate generation workflow; it does not alter the public site.
+The site is rebuilt from committed Markdown, JSON templates and the
+repository-owned map. A source push proposes a docs PR through the separate
+generation workflow; it does not alter the public site until reviewed docs
+are merged.

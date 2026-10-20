@@ -6,7 +6,7 @@ public sealed class SetupCommandsTests
     private static string Options(string section, string properties = "public int Port { get; set; } = 123;") =>
         $$"""[ConfigurationSection("{{section}}") ] public class {{section}}Options { {{properties}} }""";
 
-    private static string WriteMap(TemporaryDirectory directory) => directory.WriteFile("GenerateDocuments/documentation.json", """
+    private static string WriteMap(TemporaryDirectory directory) => directory.WriteFile("documentation.json", """
         {
           "schemaVersion": 2, "productName": "Utility", "sourcePaths": ["src"],
           "site": {"siteName": "My Guide"},
@@ -32,7 +32,7 @@ public sealed class SetupCommandsTests
         foreach (var ignored in new[] { "tests", "node_modules", "_source", "packages", ".git", "obj", "Utility.Tests" })
             directory.WriteFile($"{ignored}/Duplicate.cs", Options("Utility"));
         Assert.Equal(0, Program.Main(["init", "--source-root", directory.Path, "--product-name", "Custom Utility"]));
-        var path = System.IO.Path.Combine(directory.Path, "GenerateDocuments/documentation.json");
+        var path = System.IO.Path.Combine(directory.Path, "documentation.json");
         var map = DocumentationMapLoader.Load(path);
         Assert.Equal("Custom Utility", map.ProductName);
         Assert.True(map.Containers[0].AutoDiscover);
@@ -73,7 +73,7 @@ public sealed class SetupCommandsTests
         using var directory = new TemporaryDirectory();
         directory.WriteFile("src/First.cs", Options("First"));
         Assert.Equal(0, Program.Main(["init", "--source-root", directory.Path, "--source-path", "src"]));
-        var path = System.IO.Path.Combine(directory.Path, "GenerateDocuments/documentation.json");
+        var path = System.IO.Path.Combine(directory.Path, "documentation.json");
         var before = File.ReadAllBytes(path);
         directory.WriteFile("src/First.cs", Options("First", "public int Port { get; set; } public string Added { get; set; }"));
         directory.WriteFile("src/Second.cs", Options("Second"));

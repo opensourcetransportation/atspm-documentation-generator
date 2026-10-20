@@ -31,7 +31,7 @@ public sealed record CliOptions(
           dotnet run --project src/GenerateDocuments -- check --source-root <path> [--map <path>]
           dotnet run --project src/GenerateDocuments -- sync --source-root <path> [--map <path>] [--container <slug>] [--write]
 
-        Setup commands default to GenerateDocuments/documentation.json inside source-root.
+        Setup commands default to documentation.json at source-root.
         Run init/check/sync --help for details. Existing generation syntax:
           dotnet run --project src/GenerateDocuments -- \
             --workspace-root <path> \

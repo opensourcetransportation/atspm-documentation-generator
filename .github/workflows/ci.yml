@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/generic-documentation
   workflow_dispatch:
 
 permissions:
@@ -21,8 +22,8 @@ jobs:
       - name: Check out ATSPM fixture source
         uses: actions/checkout@v6
         with:
-          repository: opensourcetransportation/atspm
-          ref: main
+          repository: avenueconsultants/udot-atspm-development
+          ref: 82bc9983533671a00d92532289c438e54a5f60e5
           path: _source
 
       - name: Resolve fixture source commit
@@ -51,8 +52,9 @@ jobs:
         uses: ./
         with:
           source-root: _source
+          config-file: ${{ github.workspace }}/config/container-config-map.json
           output-root: _generated
-          repository-url: https://github.com/opensourcetransportation/atspm
+          repository-url: https://github.com/avenueconsultants/udot-atspm-development
           repository-ref: ${{ steps.source.outputs.sha }}
 
       - name: Verify expected output
@@ -61,34 +63,33 @@ jobs:
           set -euo pipefail
           mapfile -t expected < <(
             jq -r '.containers[].slug + ".md"' config/container-config-map.json
-            printf '%s\n' index.md log-messages.md configuration-changes.md configuration-templates.md
+            printf '%s\n' index.md support/log-messages.md support/configuration-changes.md support/configuration-templates.md
           )
 
           for file in "${expected[@]}"; do
             test -s "_generated/$file"
           done
 
-          test "$(find _generated -maxdepth 1 -type f -name '*.md' | wc -l)" -eq "${#expected[@]}"
-          test -s "_generated/.atspm-docs-generator.json"
-          test -s "_generated/configuration-snapshot.json"
+          test "$(find _generated -type f -name '*.md' | wc -l)" -eq "${#expected[@]}"
+          test -s "_generated/support/.atspm-docs-generator.json"
+          test -s "_generated/support/configuration-snapshot.json"
           jq -r '.containers[].slug' config/container-config-map.json | while read -r slug; do
-            test -s "_generated/$slug.example.json"
-            test -s "_generated/$slug.env.example"
+            test -s "_generated/support/$slug.example.json"
+            test -s "_generated/support/$slug.env.example"
           done
 
       - name: Prepare consumer-owned configuration
         shell: bash
         run: |
-          mkdir -p _source/GenerateDocuments
-          cp config/container-config-map.json _source/GenerateDocuments/documentation.json
+          cp config/container-config-map.json _source/documentation.json
 
       - name: Exercise consumer-owned configuration
         uses: ./
         with:
           source-root: _source
-          config-file: GenerateDocuments/documentation.json
+          config-file: documentation.json
           output-root: _generated-consumer
-          repository-url: https://github.com/opensourcetransportation/atspm
+          repository-url: https://github.com/avenueconsultants/udot-atspm-development
           repository-ref: ${{ steps.source.outputs.sha }}
 
       - name: Compare legacy and consumer-owned outputs

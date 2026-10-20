@@ -6,7 +6,7 @@ publishing settings were changed.
 
 ## Behavior
 
-- `init` writes a minimal consumer map in `GenerateDocuments/documentation.json`.
+- `init` writes a minimal consumer map in `documentation.json`.
   It scans registered roots, selects one automatic page, finds structured log
   folders, reports unannotated candidates, and never overwrites an existing map.
 - `check` validates the map against source and reports unmapped sections, stale
