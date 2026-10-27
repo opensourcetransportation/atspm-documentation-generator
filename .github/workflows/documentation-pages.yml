@@ -101,7 +101,7 @@ jobs:
 
       - name: Package Pages artifact only when publication is enabled
         if: inputs.publish
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ${{ runner.temp }}/documentation-site
 
