@@ -90,7 +90,7 @@ jobs:
             --site-dir "$RUNNER_TEMP/documentation-site"
 
       - name: Upload reviewable site preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: documentation-pages-preview
           path: |
